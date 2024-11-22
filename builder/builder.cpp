@@ -170,12 +170,13 @@ void Builder::_POP2_(const int branch_offset) {
     return;
 };
 
-void Builder::RETURN(const int branch_offset) {
+void Builder::_CALL_(const int callee_indx) {
+    bytecode_build->push_back(BYTECODE::CALL);
+    bytecode_build->push_back(callee_indx);
+    return;
+}
+
+void Builder::_RETURN_(const int branch_offset) {
     bytecode_build->push_back(static_cast<int>(BYTECODE::RETURN));
     return;
 };
-
-void Builder::IRETURN(const int branch_offset) {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::IRETURN));
-    return;
-}

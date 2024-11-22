@@ -37,8 +37,8 @@ class Builder {
     void _POP_(const int branch_offset);
     void _POP2_(const int branch_offset);
 
-    void RETURN(const int branch_offset);
-    void IRETURN(const int branch_offset);
+    void _CALL_(const int calle_indx);
+    void _RETURN_(const int branch_offset);
 
     std::shared_ptr<std::vector<int>> bytecode_build;
 }
