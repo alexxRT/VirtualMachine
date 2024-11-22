@@ -27,11 +27,45 @@ enum class BYTECODE : int32_t {
     IIF_CMPLE = 0xa4,
     IIF_CMPLT = 0xa1,
     IIF_CMPNE = 0xa0,
+    GOTO = 0xa7,
     IPOP = 0x57,
     IPOP2 = 0x58,
+    BIPUSH = 0x10,
     RETURN = 0xb1,
-    GOTO = 0xa7,
     CALL = 77
 };
+
+static const std::unordered_map<BYTECODE, std::string> string_code {
+    {BYTECODE::ILOAD, "ILOAD"},
+    {BYTECODE::ILOAD_0, "ILOAD0"},
+    {BYTECODE::ILOAD_1, "ILOAD1"},
+    {BYTECODE::ILOAD_2, "ILOAD2"},
+    {BYTECODE::ILOAD_3, "ILOAD3"},
+    {BYTECODE::ISTORE, "ISTORE"},
+    {BYTECODE::ISTORE_0, "ISTORE0"},
+    {BYTECODE::ISTORE_1, "ISTORE1"},
+    {BYTECODE::ISTORE_2, "ISTORE2"},
+    {BYTECODE::ISTORE_3, "ISTORE3"},
+    {BYTECODE::IADD, "IADD"},
+    {BYTECODE::IMUL, "IMULL"},
+    {BYTECODE::IDIV, "IDIV"},
+    {BYTECODE::SUB, "ISUB"},
+    {BYTECODE::IINC, "IINC"},
+    {BYTECODE::IAND, "IAND"},
+    {BYTECODE::IXOR, "IXOR"},
+    {BYTECODE::IOR, "IOR"},
+    {BYTECODE::INEG, "INEG"},
+    {BYTECODE::IIF_CMPEQ, "IIF_CMPEQ"},
+    {BYTECODE::IIF_CMPGE, "IIF_CMPGE"},
+    {BYTECODE::IIF_CMPGT, "IIF_CMPGT"},
+    {BYTECODE::IIF_CMPLE, "IIF_CMPLE"},
+    {BYTECODE::IIF_CMPLT, "IIF_CMPLT"},
+    {BYTECODE::IIF_CMPNE, "IIF_CMPNE"},
+    {BYTECODE::IPOP, "IPOP"},
+    {BYTECODE::IPOP2, "IPOP2"},
+    {BYTECODE::BIPUSH, "BIPUSH"},
+    {BYTECODE::RETURN, "RETURN"},
+    {BYTECODE::CALL, "CALL"}
+}
 
 #endif // BYTECODE_HPP

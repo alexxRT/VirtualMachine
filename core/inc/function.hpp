@@ -4,15 +4,14 @@
 
 namespace VM {
     class Function {
-        //stores offset and arguments
+        //stores offset in bytecode and arguments
         public:
             template <typename... Types>
-            Function(size_t byte_offset, Types... args);
-
-            //pop elements from stack on function exit
-            exit(Stack* program_stack);
+            Function::Function(size_t byte_offset, Types... args) : offset(byte_offset) {
+                arguments = {{sizeof(Types)}...};
+            };
         private:
             size_t offset;
-            std::vector<value_t> arguments;
+            std::vector<size_t> arguments;
     };
 };

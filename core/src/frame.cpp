@@ -6,19 +6,17 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
     while (context < byte_code.size()) {
         switch (byte_code[context]) {
             case BYTECODE::ILOAD:
-                context ++;
-                int index = code[context];
-                LOAD<int>(index);
+                int index = code[++context];
+                LOAD(index);
             break;
             case BYTECODE::ISTORE:
-                context ++;
-                int index = code[context];
+                int index = code[++context];
                 STORE<int>()
             break;
             case BYTECODE::IINC:
-                context ++;
-                int inc = code[context];
-                INC<int>(inc);
+                int var_indx = code[++context];
+                int inc = code[++context];
+                INC<int>(var_index, inc);
             break;
             case BYTECODE::CALL:
                 context ++;
@@ -26,21 +24,17 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
                 Frame* next_frame  = new Frame(stack, f_table[callee_indx], this, f_table[callee_indx].offset);
                 next_frame->run_context(byte_code, f_table);
             break;
-            case BYTECODE::GOTO:
-                context ++;
-                context = code[context];
-            break;
             case BYTECODE::ILOAD_0:
-                LOAD_I<int, 0>();
+                LOAD_I<0>();
             break;
             case BYTECODE::ILOAD_1:
-                LOAD_I<int, 1>();
+                LOAD_I<1>();
             break;
             case BYTECODE::ILOAD_2:
-                LOAD_I<int, 2>();
+                LOAD_I<2>();
             break;
             case BYTECODE::ILOAD_3:
-                LOAD_I<int, 3>();
+                LOAD_I<3>();
             break;
             case BYTECODE::STORE_0:
                 STORE_I<int, 0>();
@@ -79,22 +73,32 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
                 NEG<int>();
             break;
             case BYTECODE::IIF_CMPEQ:
-                BRANCH<int>(std::equal_to{});
+                int jump_offset = byte_code[++context];
+                BRANCH<int>(std::equal_to{}, jump_offset);
             break;
             case BYTECODE::IIF_CMPGE:
-                BRANCH<int>(std::greater_equal{});
+                int jump_offset = bytte_code[++context];
+                BRANCH<int>(std::greater_equal{}, jump_offset);
             break;
             case BYTECODE::IIF_CMPGT:
-                BRANCH<int>(std::greater{});
+                int jump_offset = byte_code[++context];
+                BRANCH<int>(std::greater{}, jump_offset); 
             break;
             case BYTECODE::IIF_CMPLE:
-                BRANCH<int>(std::less_equal{});
+                int jump_offset = byte_code[++context];
+                BRANCH<int>(std::less_equal{}, jump_offset);
             break;
             case BYTECODE::IIF_CMPLT:
-                BRANCH<int>(std::less{});
+                int jump_offset = byte_code[++context];
+                BRANCH<int>(std::less{}, jump_offset);
             break;
             case BYTECODE::IIF_CMPNE:
-                BRANCH<int>(std::not_equal_to{});
+                int jump_offset = byte_code[++context];
+                BRANCH<int>(std::not_equal_to{}, jump_offset);
+            break;
+            case BYTECODE::GOTO:
+                int jump_offset = byte_code[++context];
+                context = jump_offset;
             break;
             case BYTECODE::IPOP:
                 POP<int>();
@@ -103,37 +107,42 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
                 POP2<int>();
             break;
             case BYTECODE::RETURN:
-                callee.exit();
-                context ++;
                 return;
         }
-        context ++;
     }
     std::cout << "Error! Frame bytecode has no return statement" << std::endl;
-    return RT();
-};
-
-
-template <typename T>
-void Frame::LOAD(int val_index) {
-    local_vars[val_index] = stack->pop<T>();
-    return;
-};
-
-template <typename T, int I> 
-void Frame::LOAD_I( ) {
-    local_vars[I] = stack->pop<T>();
 };
 
 template <typename T>
 void Frame::STORE(int val_index) {
-    stack->push<T>(local_vars[val_index]);
+    if (val_index >= local_variables.size())
+        local_variables.resize(val_index);
+    local_variables[val_index] = stack->pop(sizeof(T));
+    context ++;
     return;
 };
 
-template <typename T, int I>
+template <typename T, int I> 
 void Frame::STORE_I() {
-    stack->push<T>(local_vars[I]);
+    if (I >= local_variables.size())
+        local_variables.resize(I);
+    local_variables[I] = stack->pop(sizeof(T));
+    context ++;
+    return;
+};
+
+void Frame::LOAD(int val_index) {
+    static_assert(val_index < local_variables.size());
+    stack->push(local_variables[val_index]);
+    context ++;
+    return;
+};
+
+template <int I>
+void Frame::LOAD_I() {
+    static_assert(I < local_variables.size());
+    stack->push(local_variables[I]);
+    context ++;
 };
 
 template <typename T, std::regular_invocable<T, T> F>
@@ -141,36 +150,50 @@ void Frame::BIN(F op) {
     T var1 = stack->pop<T>();
     T var2 = stack->pop<T>();
     stack->push<T>(op(var2, var1))
+    context ++;
 };
 
 template <typename T, std::regular_invocable<T, T> CMP>
-bool Frame::BRANCH(CMP cmp_op) {
+void Frame::BRANCH(CMP cmp_op, int branch) {
     T var1 = stack->pop<T>();
     T var2 = stack->pop<T>();
-    return cmp_op(var1, var2);
+    context ++;
+    if (cmp_op(var1, var2))
+        context = branch;
+}
+
+void Frame::BIPUSH(const int value) {
+    stack->push<int>(value);
+    context ++;
+    return;
 }
 
 template <typename T>
 void Frame::POP() {
     stack->pop<T>();
+    context ++;
     return;
 }
 template <typename T>
 void Frame::POP2() {
     stack->pop<T>();
     stack->pop<T>();
+    context ++;
     return;
 }
 
 template <typename T>
-void Frame::INC(const int c) {
-    T var1 = stack->pop<T>();
-    stack->push<T>(var1 + c);
+void Frame::INC(const int var_indx, const T c) {
+    static_assert(var_indx < local_variables.size());
+    static_cast<T*>(local_variables[var_indx].value)[0] += c;
+    context ++;
     return;
 }
+
 template <typename T>
 void Frame::NEG() {
     T var1 = stack->pop<T>();
     stack->push<T>(-var1);
+    context ++;
     return;
 }
