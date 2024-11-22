@@ -1,28 +1,33 @@
 #include "frame.hpp"
+#include <cassert>
 
 using namespace VM;
 
 void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_table) {
     while (context < byte_code.size()) {
         switch (byte_code[context]) {
-            case BYTECODE::ILOAD:
-                int index = code[++context];
+            case BYTECODE::ILOAD: {
+                int index = byte_code[++context];
                 LOAD(index);
+            }
             break;
-            case BYTECODE::ISTORE:
-                int index = code[++context];
-                STORE<int>()
+            case BYTECODE::ISTORE: {
+                int index = byte_code[++context];
+                STORE<int>(index);
+            }
             break;
-            case BYTECODE::IINC:
-                int var_indx = code[++context];
-                int inc = code[++context];
-                INC<int>(var_index, inc);
+            case BYTECODE::IINC: {
+                int var_indx = byte_code[++context];
+                int inc = byte_code[++context];
+                INC<int>(var_indx, inc);
+            }
             break;
-            case BYTECODE::CALL:
+            case BYTECODE::CALL: {
                 context ++;
-                size_t callee_indx = code[context];
+                size_t callee_indx = byte_code[context];
                 Frame* next_frame  = new Frame(stack, f_table[callee_indx], this, f_table[callee_indx].offset);
                 next_frame->run_context(byte_code, f_table);
+            }
             break;
             case BYTECODE::ILOAD_0:
                 LOAD_I<0>();
@@ -36,16 +41,16 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
             case BYTECODE::ILOAD_3:
                 LOAD_I<3>();
             break;
-            case BYTECODE::STORE_0:
+            case BYTECODE::ISTORE_0:
                 STORE_I<int, 0>();
             break;
-            case BYTECODE::STORE_1:
+            case BYTECODE::ISTORE_1:
                 STORE_I<int, 1>();
             break;
-            case BYTECODE::STORE_2:
+            case BYTECODE::ISTORE_2:
                 STORE_I<int, 2>();
             break;
-            case BYTECODE::STORE_3:
+            case BYTECODE::ISTORE_3:
                 STORE_I<int, 3>();
             break;
             case BYTECODE::IADD:
@@ -72,33 +77,40 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
             case BYTECODE::INEG:
                 NEG<int>();
             break;
-            case BYTECODE::IIF_CMPEQ:
+            case BYTECODE::IIF_CMPEQ: {
                 int jump_offset = byte_code[++context];
                 BRANCH<int>(std::equal_to{}, jump_offset);
+            }
             break;
-            case BYTECODE::IIF_CMPGE:
-                int jump_offset = bytte_code[++context];
+            case BYTECODE::IIF_CMPGE: {
+                int jump_offset = byte_code[++context];
                 BRANCH<int>(std::greater_equal{}, jump_offset);
+            }
             break;
-            case BYTECODE::IIF_CMPGT:
+            case BYTECODE::IIF_CMPGT: {
                 int jump_offset = byte_code[++context];
                 BRANCH<int>(std::greater{}, jump_offset); 
+            }
             break;
-            case BYTECODE::IIF_CMPLE:
+            case BYTECODE::IIF_CMPLE: {
                 int jump_offset = byte_code[++context];
                 BRANCH<int>(std::less_equal{}, jump_offset);
+            }
             break;
-            case BYTECODE::IIF_CMPLT:
+            case BYTECODE::IIF_CMPLT: {
                 int jump_offset = byte_code[++context];
                 BRANCH<int>(std::less{}, jump_offset);
+            }
             break;
-            case BYTECODE::IIF_CMPNE:
+            case BYTECODE::IIF_CMPNE: {
                 int jump_offset = byte_code[++context];
                 BRANCH<int>(std::not_equal_to{}, jump_offset);
+            }
             break;
-            case BYTECODE::GOTO:
+            case BYTECODE::GOTO: {
                 int jump_offset = byte_code[++context];
                 context = jump_offset;
+            }
             break;
             case BYTECODE::IPOP:
                 POP<int>();
@@ -132,7 +144,7 @@ void Frame::STORE_I() {
 };
 
 void Frame::LOAD(int val_index) {
-    static_assert(val_index < local_variables.size());
+    assert(val_index < local_variables.size());
     stack->push(local_variables[val_index]);
     context ++;
     return;
@@ -140,7 +152,7 @@ void Frame::LOAD(int val_index) {
 
 template <int I>
 void Frame::LOAD_I() {
-    static_assert(I < local_variables.size());
+    assert(I < local_variables.size());
     stack->push(local_variables[I]);
     context ++;
 };
@@ -149,7 +161,7 @@ template <typename T, std::regular_invocable<T, T> F>
 void Frame::BIN(F op) {
     T var1 = stack->pop<T>();
     T var2 = stack->pop<T>();
-    stack->push<T>(op(var2, var1))
+    stack->push<T>(op(var2, var1));
     context ++;
 };
 
@@ -184,8 +196,8 @@ void Frame::POP2() {
 
 template <typename T>
 void Frame::INC(const int var_indx, const T c) {
-    static_assert(var_indx < local_variables.size());
-    static_cast<T*>(local_variables[var_indx].value)[0] += c;
+    assert(var_indx < local_variables.size());
+    static_cast<T*>(local_variables[var_indx].value.get())[0] += c;
     context ++;
     return;
 }

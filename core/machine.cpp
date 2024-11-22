@@ -5,7 +5,7 @@
 using namespace VM;
 
 void Machine::load_fibanachi_cycled(int n) {
-    Builder build(std::make_shared(bytecode));
+    Builder build(std::make_shared<decltype(bytecode)>(bytecode));
     //fib(n)
     build._BIPUSH_(0);          // 0
     build._ISTORE_1();          // 2
@@ -19,7 +19,7 @@ void Machine::load_fibanachi_cycled(int n) {
     build._ILOAD_1();           // 13
     build._ILOAD_2();           // 14
     build._IADD_();             // 15
-    build._ISTORE(4);           // 16
+    build._ISTORE_(4);           // 16
     build._ILOAD_2();           // 18
     build._ISTORE_1();          // 19
     build._ILOAD_(4);           // 20
@@ -48,7 +48,7 @@ void Machine::load_fibanachi_cycled(int n) {
 };
 
 void Machine::load_fibonachi_recursive(int n) {
-    Builder build(std::make_shared(bytecode));
+    Builder build(std::make_shared<decltype(bytecode)>(bytecode));
     // fib(n)
     build._ILOAD_0();           // 0
     build._BIPUSH_(1);          // 1
@@ -87,19 +87,17 @@ void Machine::print_bytecode() {
     std::vector<int>::iterator code = bytecode.begin();
     while (code != bytecode.end()) {
         if (*code == BYTECODE::CALL or *code == BYTECODE::ILOAD or *code == BYTECODE::ISTORE or *code == BYTECODE::IINC) {
-            std::cout << std::format("{:#x}", *code) << " " << std::format("{:#x}", *(code + 1)) << " " << string_code[*code] << " " << std::format("{:#x}", *(code + 1)) << std::endl;
-            code ++
+            std::cout << std::format("{:#x}", *code) << " " << std::format("{:#x}", *(code + 1)) << " " << string_code.at(*code) << " " << std::format("{:#x}", *(code + 1)) << std::endl;
+            code ++;
         }
-        std::cout << std::foramt("{:#x}", *code) << " " << string_code[*code] << std::endl; 
+        std::cout << std::format("{:#x}", *code) << " " << string_code.at(*code) << std::endl; 
         code ++;
     }
 }
 
 void Machine::print_stack() {
     std::cout << "---------------- Machine Stack ------------------" << std::endl;
-    for (auto& elem : stack) {
-        std::cout << std::format("{:x}", elem) << " ";
-    }
+    stack.print();
     std::cout << std::endl << std::endl;
 }
 
@@ -116,8 +114,8 @@ void Machine::execute() {
 
     size_t main_offset = functions[0].offset;
 
-    Frame* main_frame = new Frame(&stack, functions, nullptr, main_offset);
-    main_frame->run_context(bytecode);
+    Frame* main_frame = new Frame(&stack, functions[0], nullptr, main_offset);
+    main_frame->run_context(bytecode, functions);
 };
 
 void Machine::reset() {

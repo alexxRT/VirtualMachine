@@ -1,3 +1,4 @@
+#pragma once
 #include "common.hpp"
 #include "bytecode.hpp"
 #include "stack.hpp"
@@ -8,7 +9,7 @@ namespace VM {
         public:
             Frame(Stack* program_stack, const Function& callee, Frame* prev_frame, size_t pc) : stack(program_stack), context(pc), callee(callee), prev(prev_frame) {
                 for (size_t i = callee.arguments.size() - 1; i >= 0; i --) {
-                    value_t val = program_stack->pop(callee.arguments[i].value_size);
+                    value_t val = program_stack->pop(callee.arguments[i]);
                     local_variables.push_front(val);
                 }
             };
@@ -31,7 +32,7 @@ namespace VM {
             void BIN(F op);
 
             template <typename T, std::regular_invocable<T, T> CMP>
-            bool BRANCH(CMP cmp_op, int branch);
+            void BRANCH(CMP cmp_op, int branch);
 
             template <typename T>
             void POP();

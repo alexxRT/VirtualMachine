@@ -1,7 +1,5 @@
 #include "machine.hpp"
 
-
-
 int main() {
     VM::Machine jvm;
     jvm.load_fibanachi_cycled(10);

@@ -9,7 +9,7 @@ Builder::Builder(std::shared_ptr<std::vector<int>> bytecode) {
 void Builder::_ILOAD_(int local_index) {
     if (VALID_LOCAL(local_index)) {
         bytecode_build->push_back(static_cast<int>(BYTECODE::ILOAD));
-        bytecode_build->push_back(local_index)
+        bytecode_build->push_back(local_index);
         return;
     }
 
@@ -41,8 +41,8 @@ void Builder::_ILOAD_3() {
 
 void Builder::_ISTORE_(int local_index) {
     if (VALID_LOCAL(local_index)) {
-        bytecode_build->push_back(static_cast<int>(BYTECODE::STORE));
-        bytecode_build->push_back(local_index)
+        bytecode_build->push_back(static_cast<int>(BYTECODE::ISTORE));
+        bytecode_build->push_back(local_index);
         return;
     }
 
@@ -53,22 +53,22 @@ void Builder::_ISTORE_(int local_index) {
 };
 
 void Builder::_ISTORE_0() {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::STORE_0));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::ISTORE_0));
     return;
 };
 
 void Builder::_ISTORE_1() {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::STORE_1));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::ISTORE_1));
     return;
 } 
 
 void Builder::_ISTORE_2() {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::STORE_2));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::ISTORE_2));
     return;
 };
 
 void Builder::_ISTORE_3() {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::STORE_3));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::ISTORE_3));
     return;
 };
 
@@ -81,8 +81,10 @@ void Builder::_IMUL_() {
     bytecode_build->push_back(static_cast<int>(BYTECODE::IMUL));
     return;
 };
-void Builder::_IINC_() {
+void Builder::_IINC_(const int var_index, const int inc) {
     bytecode_build->push_back(static_cast<int>(BYTECODE::IINC));
+    bytecode_build->push_back(var_index);
+    bytecode_build->push_back(inc);
     return;
 };
 
@@ -117,37 +119,37 @@ void Builder::_INEG_() {
 };
 
 void Builder::_IF_ICMPEQ_(const int branch_offset) {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::IF_ICMPEQ));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::IIF_CMPEQ));
     bytecode_build->push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPGE_(const int branch_offset) {    
-    bytecode_build->push_back(static_cast<int>(BYTECODE::IF_ICMPGE));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::IIF_CMPGE));
     bytecode_build->push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPGT_(const int branch_offset) {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::IF_ICMPGT));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::IIF_CMPGT));
     bytecode_build->push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPLE_(const int branch_offset) {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::IF_ICMPLE));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::IIF_CMPLE));
     bytecode_build->push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPLT_(const int branch_offset) {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::IF_ICMPLT));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::IIF_CMPLT));
     bytecode_build->push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPNE_(const int branch_offset) {
-    bytecode_build->push_back(static_cast<int>(BYTECODE::IF_ICMPNE));
+    bytecode_build->push_back(static_cast<int>(BYTECODE::IIF_CMPNE));
     bytecode_build->push_back(branch_offset);
     return;
 };
@@ -157,13 +159,13 @@ void Builder::_GOTO_(const int branch_offset) {
     bytecode_build->push_back(branch_offset);
 }
 
-void Builder::_POP_(const int branch_offset) {
+void Builder::_POP_() {
     bytecode_build->push_back(static_cast<int>(BYTECODE::IPOP));
     return;
 };
 
 
-void Builder::_POP2_(const int branch_offset) {
+void Builder::_POP2_() {
     bytecode_build->push_back(static_cast<int>(BYTECODE::IPOP2));
     return;
 };
@@ -175,12 +177,12 @@ void Builder::_BIPUSH_(const int value) {
 }
 
 void Builder::_CALL_(const int callee_indx) {
-    bytecode_build->push_back(BYTECODE::CALL);
+    bytecode_build->push_back(static_cast<int>(BYTECODE::CALL));
     bytecode_build->push_back(callee_indx);
     return;
 }
 
-void Builder::_RETURN_(const int branch_offset) {
+void Builder::_RETURN_() {
     bytecode_build->push_back(static_cast<int>(BYTECODE::RETURN));
     return;
 };
