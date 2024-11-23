@@ -5,7 +5,7 @@
 using namespace VM;
 
 void Machine::load_fibanachi_cycled(int n) {
-    Builder build(std::make_shared<decltype(bytecode)>(bytecode));
+    Builder build(bytecode);
     //fib(n)
     build._BIPUSH_(0);          // 0
     build._ISTORE_1();          // 2
@@ -19,7 +19,7 @@ void Machine::load_fibanachi_cycled(int n) {
     build._ILOAD_1();           // 13
     build._ILOAD_2();           // 14
     build._IADD_();             // 15
-    build._ISTORE_(4);           // 16
+    build._ISTORE_(4);          // 16
     build._ILOAD_2();           // 18
     build._ISTORE_1();          // 19
     build._ILOAD_(4);           // 20
@@ -29,12 +29,12 @@ void Machine::load_fibanachi_cycled(int n) {
     build._ILOAD_2();           // 28
     build._RETURN_();           // 29
 
-    size_t main_offset = bytecode.size();
+    size_t main_offset = bytecode->size();
 
     // main()
-    build._BIPUSH_(n);         // 30
-    build._CALL_(1);            // 31
-    build._RETURN_();           // 32
+    build._BIPUSH_(n);          // 30
+    build._CALL_(1);            // 32
+    build._RETURN_();           // 34
 
     // add main(): // main allways has entrance point in zero
     // 0 - main, 1 - fibanachi
@@ -48,7 +48,7 @@ void Machine::load_fibanachi_cycled(int n) {
 };
 
 void Machine::load_fibonachi_recursive(int n) {
-    Builder build(std::make_shared<decltype(bytecode)>(bytecode));
+    Builder build(bytecode);
     // fib(n)
     build._ILOAD_0();           // 0
     build._BIPUSH_(1);          // 1
@@ -66,7 +66,7 @@ void Machine::load_fibonachi_recursive(int n) {
     build._IADD_();             // 19
     build._RETURN_();           // 20
 
-    size_t main_offset = bytecode.size();
+    size_t main_offset = bytecode->size();
 
     // main()
     build._BIPUSH_(n);         // 21
@@ -84,25 +84,44 @@ void Machine::load_fibonachi_recursive(int n) {
 };
 
 void Machine::print_bytecode() {
-    std::vector<int>::iterator code = bytecode.begin();
-    while (code != bytecode.end()) {
-        if (*code == BYTECODE::CALL or *code == BYTECODE::ILOAD or *code == BYTECODE::ISTORE or *code == BYTECODE::IINC) {
-            std::cout << std::format("{:#x}", *code) << " " << std::format("{:#x}", *(code + 1)) << " " << string_code.at(*code) << " " << std::format("{:#x}", *(code + 1)) << std::endl;
-            code ++;
+    std::vector<int>::iterator code = bytecode->begin();
+    while (code != bytecode->end()) {
+        switch (*code) {
+            case BYTECODE::IINC:
+                std::cout << std::format("{:#x}", *code) << " " << std::format("{:#x}", *(code + 1)) << " " << std::format("{:#x}", *(code + 2)) << " | "
+                          << string_code.at(*code) << " " << std::format("{:#x}", *(code + 1)) << " " << std::format("{:#x}", *(code + 2)) << std::endl;
+                code += 3;
+            break;
+            case BYTECODE::CALL:
+            case BYTECODE::ILOAD:
+            case BYTECODE::ISTORE:
+            case BYTECODE::BIPUSH:
+            case BYTECODE::IIF_CMPEQ:
+            case BYTECODE::IIF_CMPGE:
+            case BYTECODE::IIF_CMPGT:
+            case BYTECODE::IIF_CMPLE:
+            case BYTECODE::IIF_CMPLT:
+            case BYTECODE::IIF_CMPNE:
+            case BYTECODE::GOTO:
+                std::cout << std::format("{:#x}", *code) << " " << std::format("{:#x}", *(code + 1)) << " | " 
+                          << string_code.at(*code) << " " << std::format("{:#x}", *(code + 1)) << std::endl;
+                code += 2;
+            break;
+            default:
+                std::cout << std::format("{:#x}", *code) << " | " << string_code.at(*code) << std::endl; 
+                code ++;
         }
-        std::cout << std::format("{:#x}", *code) << " " << string_code.at(*code) << std::endl; 
-        code ++;
     }
 }
 
 void Machine::print_stack() {
-    std::cout << "---------------- Machine Stack ------------------" << std::endl;
+    std::cout << "---------------- Machine Stack in HEX ------------------" << std::endl;
     stack.print();
     std::cout << std::endl << std::endl;
 }
 
 void Machine::execute() {
-    if (bytecode.size() == 0) {
+    if (bytecode->size() == 0) {
         std::cout << "Nothing to execute! Please use load functions to load your programm!" << std::endl;
         return;
     }
@@ -113,14 +132,13 @@ void Machine::execute() {
     }
 
     size_t main_offset = functions[0].offset;
-
     Frame* main_frame = new Frame(&stack, functions[0], nullptr, main_offset);
-    main_frame->run_context(bytecode, functions);
+
+    main_frame->run_context(*bytecode.get(), functions);
 };
 
 void Machine::reset() {
-    entry_point = 0;
-    bytecode.clear();
+    bytecode->clear();
     stack.clear();
     functions.clear();
 };

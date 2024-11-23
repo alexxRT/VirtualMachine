@@ -3,7 +3,7 @@
 
 class Builder {
     public:
-        Builder(std::shared_ptr<std::vector<int>> bytecode);
+        Builder(std::shared_ptr<std::vector<int>> byte_code);
 
         void _ILOAD_(const size_t local_index);
         void _ILOAD_0();

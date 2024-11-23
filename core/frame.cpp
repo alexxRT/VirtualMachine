@@ -23,10 +23,15 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
             }
             break;
             case BYTECODE::CALL: {
-                context ++;
-                size_t callee_indx = byte_code[context];
+                size_t callee_indx = byte_code[++context];
                 Frame* next_frame  = new Frame(stack, f_table[callee_indx], this, f_table[callee_indx].offset);
                 next_frame->run_context(byte_code, f_table);
+                context ++;
+            }
+            break;
+            case BYTECODE::BIPUSH: {
+                int push_val = byte_code[++context];
+                BIPUSH(push_val);
             }
             break;
             case BYTECODE::ILOAD_0:
@@ -120,6 +125,9 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
             break;
             case BYTECODE::RETURN:
                 return;
+            default:
+                std::cout << "Unknow bytecode when executing! Abort..." << std::endl;
+                return;
         }
     }
     std::cout << "Error! Frame bytecode has no return statement" << std::endl;
@@ -128,8 +136,15 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
 template <typename T>
 void Frame::STORE(const size_t val_index) {
     if (val_index >= local_variables.size())
-        local_variables.resize(val_index);
-    local_variables[val_index] = stack->pop(sizeof(T));
+        local_variables.resize(val_index + 1, {nullptr, 0});
+
+    if (local_variables[val_index].value)
+        free(local_variables[val_index].value);
+
+    local_variables[val_index].value = calloc(sizeof(T), sizeof(uint8_t));
+    local_variables[val_index].value_size = sizeof(T);
+    
+    stack->pop(local_variables[val_index]);
     context ++;
     return;
 };
@@ -137,8 +152,15 @@ void Frame::STORE(const size_t val_index) {
 template <typename T, int I> 
 void Frame::STORE_I() {
     if (I >= local_variables.size())
-        local_variables.resize(I);
-    local_variables[I] = stack->pop(sizeof(T));
+        local_variables.resize(I + 1, {nullptr, 0});
+
+    if (local_variables[I].value)
+        free(local_variables[I].value);
+
+    local_variables[I].value = calloc(sizeof(T), sizeof(uint8_t));
+    local_variables[I].value_size = sizeof(T);
+    
+    stack->pop(local_variables[I]);
     context ++;
     return;
 };
@@ -170,7 +192,7 @@ void Frame::BRANCH(CMP cmp_op, int branch) {
     T var1 = stack->pop<T>();
     T var2 = stack->pop<T>();
     context ++;
-    if (cmp_op(var1, var2))
+    if (cmp_op(var2, var1))
         context = branch;
 }
 
@@ -197,7 +219,7 @@ void Frame::POP2() {
 template <typename T>
 void Frame::INC(const size_t var_indx, const T c) {
     assert(var_indx < local_variables.size());
-    static_cast<T*>(local_variables[var_indx].value.get())[0] += c;
+    static_cast<T*>(local_variables[var_indx].value)[0] += c;
     context ++;
     return;
 }

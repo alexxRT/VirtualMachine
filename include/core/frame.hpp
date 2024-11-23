@@ -12,14 +12,21 @@ namespace VM {
                 prev    = prev_frame;
                 context = pc;
 
-                for (size_t i = callee.arguments.size() - 1; i >= 0; i --) {
-                    value_t val = program_stack->pop(callee.arguments[i]);
-                    local_variables.push_front(val);
+                std::vector<size_t>::reverse_iterator it = callee.arguments.rbegin();
+                for (; it < callee.arguments.rend(); it++) {
+                    value_t local = {calloc(*it, sizeof(uint8_t)), *it};
+                    program_stack->pop(local);
+                    local_variables.push_front(local);
                 }
             };
 
+            ~Frame() {
+                for (auto& val : local_variables) {
+                    if (val.value)
+                        free(val.value);
+                }
+            }
             void run_context(std::vector<int>& byte_code, std::vector<Function>& f_table);
-               
         private:
             void LOAD(const size_t val_index);
 
