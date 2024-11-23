@@ -15,8 +15,8 @@ namespace VM {
             void print_stack();
 
         private:
-            Stack stack;
-            int entry_point;
+            Stack  stack;
+            size_t entry_point;
             std::vector<int> bytecode;
             std::vector<Function> functions;
     };

@@ -8,7 +8,7 @@ namespace VM {
         public:
             template <typename... Types>
             Function(size_t byte_offset, Types... args) : offset(byte_offset) {
-                arguments = {{sizeof(Types)}...};
+                arguments = {{sizeof(args)}...};
             };
         public:
             size_t offset;

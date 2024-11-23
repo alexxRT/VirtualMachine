@@ -7,7 +7,11 @@
 namespace VM {
     class Frame {
         public:
-            Frame(Stack* program_stack, const Function& callee, Frame* prev_frame, size_t pc) : stack(program_stack), context(pc), callee(callee), prev(prev_frame) {
+            Frame(Stack* program_stack, const Function& f_callee, Frame* prev_frame, size_t pc) : callee(f_callee) {
+                stack   = program_stack;
+                prev    = prev_frame;
+                context = pc;
+
                 for (size_t i = callee.arguments.size() - 1; i >= 0; i --) {
                     value_t val = program_stack->pop(callee.arguments[i]);
                     local_variables.push_front(val);
@@ -17,13 +21,13 @@ namespace VM {
             void run_context(std::vector<int>& byte_code, std::vector<Function>& f_table);
                
         private:
-            void LOAD(int val_index);
+            void LOAD(const size_t val_index);
 
             template <int I> 
             void LOAD_I();
 
             template <typename T>
-            void STORE(int val_index);
+            void STORE(const size_t val_index);
 
             template <typename T, int I>
             void STORE_I();
@@ -41,7 +45,7 @@ namespace VM {
             void POP2();
 
             template <typename T>
-            void INC(const int var_indx, const T c);
+            void INC(const size_t var_indx, const T c);
 
             template <typename T>
             void NEG();

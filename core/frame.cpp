@@ -126,7 +126,7 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
 };
 
 template <typename T>
-void Frame::STORE(int val_index) {
+void Frame::STORE(const size_t val_index) {
     if (val_index >= local_variables.size())
         local_variables.resize(val_index);
     local_variables[val_index] = stack->pop(sizeof(T));
@@ -143,7 +143,7 @@ void Frame::STORE_I() {
     return;
 };
 
-void Frame::LOAD(int val_index) {
+void Frame::LOAD(const size_t val_index) {
     assert(val_index < local_variables.size());
     stack->push(local_variables[val_index]);
     context ++;
@@ -195,7 +195,7 @@ void Frame::POP2() {
 }
 
 template <typename T>
-void Frame::INC(const int var_indx, const T c) {
+void Frame::INC(const size_t var_indx, const T c) {
     assert(var_indx < local_variables.size());
     static_cast<T*>(local_variables[var_indx].value.get())[0] += c;
     context ++;

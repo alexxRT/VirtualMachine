@@ -6,16 +6,9 @@ Builder::Builder(std::shared_ptr<std::vector<int>> bytecode) {
     bytecode_build->clear();
 };
 
-void Builder::_ILOAD_(int local_index) {
-    if (VALID_LOCAL(local_index)) {
-        bytecode_build->push_back(static_cast<int>(BYTECODE::ILOAD));
-        bytecode_build->push_back(local_index);
-        return;
-    }
-
-    std::cout << "Bad local variable index [" << local_index << "]. Aborting..." << std::endl;
-    bytecode_build->clear();
-    bytecode_build = nullptr;
+void Builder::_ILOAD_(const size_t local_index) {
+    bytecode_build->push_back(static_cast<int>(BYTECODE::ILOAD));
+    bytecode_build->push_back(local_index);
     return;
 };
 
@@ -39,16 +32,9 @@ void Builder::_ILOAD_3() {
     return;
 };
 
-void Builder::_ISTORE_(int local_index) {
-    if (VALID_LOCAL(local_index)) {
-        bytecode_build->push_back(static_cast<int>(BYTECODE::ISTORE));
-        bytecode_build->push_back(local_index);
-        return;
-    }
-
-    std::cout << "Bad local variable index [" << local_index << "]. Aborting..." << std::endl;
-    bytecode_build->clear();
-    bytecode_build = nullptr;
+void Builder::_ISTORE_(const size_t local_index) {
+    bytecode_build->push_back(static_cast<int>(BYTECODE::ISTORE));
+    bytecode_build->push_back(local_index);
     return;
 };
 
@@ -81,7 +67,7 @@ void Builder::_IMUL_() {
     bytecode_build->push_back(static_cast<int>(BYTECODE::IMUL));
     return;
 };
-void Builder::_IINC_(const int var_index, const int inc) {
+void Builder::_IINC_(const size_t var_index, const int inc) {
     bytecode_build->push_back(static_cast<int>(BYTECODE::IINC));
     bytecode_build->push_back(var_index);
     bytecode_build->push_back(inc);
@@ -176,7 +162,7 @@ void Builder::_BIPUSH_(const int value) {
     return;
 }
 
-void Builder::_CALL_(const int callee_indx) {
+void Builder::_CALL_(const size_t callee_indx) {
     bytecode_build->push_back(static_cast<int>(BYTECODE::CALL));
     bytecode_build->push_back(callee_indx);
     return;
