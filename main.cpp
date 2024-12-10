@@ -2,7 +2,7 @@
 #include "builder.hpp"
 #include "types.hpp"
 
-VM::Bytecode fibanachi_cycled(int n) {
+VM::Bytecode fibonachi_cycled(int n) {
     Builder build;
 
     // public static int fib(int)
@@ -42,10 +42,46 @@ VM::Bytecode fibanachi_cycled(int n) {
     return build.create_bytecode(std::move(main), std::move(fib));
 }
 
+VM::Bytecode fibonachi_recursive(int n) {
+    Builder build;
+    
+    // public static int fib(int)
+    build._ILOAD_0();           // 0
+    build._BIPUSH_(1);          // 1
+    build._IF_ICMPGT_(7);       // 3
+    build._ILOAD_0();           // 5
+    build._RETURN_();           // 6
+    build._ILOAD_0();           // 7
+    build._BIPUSH_(1);          // 8
+    build._ISUB_();             // 10
+    build._CALL_(1);            // 11
+    build._ILOAD_0();           // 13
+    build._BIPUSH_(2);          // 14
+    build._ISUB_();             // 16
+    build._CALL_(1);            // 17
+    build._IADD_();             // 19
+    build._RETURN_();           // 20
+
+    auto fib = build.create_function<VM::jint>();
+
+    // main()
+    build._BIPUSH_(n);          // 21
+    build._CALL_(1);            // 23
+    build._RETURN_();           // 25
+
+    auto main = build.create_function();
+
+    // main allways has entrance point in zero
+    // 0 - main, 1 - fibanachi
+    return build.create_bytecode(std::move(main), std::move(fib));
+}
+
 int main() {
-    auto bytecode = fibanachi_cycled(10);
+    auto bytecode = fibonachi_cycled(10);
     VM::Execute(bytecode);
 
+    bytecode = fibonachi_recursive(10);
+    VM::Execute(bytecode);
     // VM::Machine jvm;
     // jvm.load_fibanachi_cycled(10);
     // jvm.print_bytecode();

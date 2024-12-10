@@ -14,8 +14,6 @@ namespace VM {
                 functions(std::forward<Bytecode>(Functions)) 
                 {}
 
-            void load_fibanachi_cycled(int n);
-            void load_fibonachi_recursive(int n);
             void print_bytecode();
             void execute();
             void reset();
