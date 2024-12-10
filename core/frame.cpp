@@ -24,8 +24,8 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
             break;
             case BYTECODE::CALL: {
                 size_t callee_indx = byte_code[++context];
-                Frame* next_frame  = new Frame(stack, f_table[callee_indx], this, f_table[callee_indx].offset);
-                next_frame->run_context(byte_code, f_table);
+                Frame next_frame   = Frame(stack, f_table[callee_indx], this);
+                next_frame.run_context(f_table[callee_indx].bytecode, f_table);
                 context ++;
             }
             break;

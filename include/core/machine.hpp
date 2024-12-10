@@ -2,13 +2,18 @@
 #include "function.hpp"
 #include "stack.hpp"
 #include "common.hpp"
+#include "types.hpp"
+#include <concepts>
 
 namespace VM {
     class Machine {
         public:
-            Machine(const int stack_size = 10): stack(stack_size) {
-                bytecode = std::make_shared<std::vector<int>>();
-            };
+            template <std::convertible_to<Bytecode> BytecodeT>
+            Machine(BytecodeT&& Functions, int stack_size = 10): 
+                stack(stack_size),
+                functions(std::forward<Bytecode>(Functions)) 
+                {}
+
             void load_fibanachi_cycled(int n);
             void load_fibonachi_recursive(int n);
             void print_bytecode();
@@ -19,7 +24,14 @@ namespace VM {
         private:
             Stack  stack;
             static const size_t entry_point = 0;
-            std::shared_ptr<std::vector<int>> bytecode;
-            std::vector<Function> functions;
+            Bytecode functions;
     };
+
+    template <std::convertible_to<Bytecode> BytecodeT>
+    void Execute(BytecodeT&& bytecode) {
+        Machine jvm {std::forward<Bytecode>(bytecode)};
+        jvm.print_bytecode();
+        jvm.execute();
+        jvm.print_stack();
+    }   
 };

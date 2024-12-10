@@ -4,14 +4,14 @@
 
 namespace VM {
     class Function {
-        //stores offset in bytecode and arguments
         public:
-            template <typename... Types>
-            Function(size_t byte_offset, Types... args) : offset(byte_offset) {
-                arguments = {{sizeof(args)}...};
-            };
+            Function(std::vector<int>&& Bytecode,
+                     std::initializer_list<size_t> Arguments) : 
+                bytecode(std::move(Bytecode)),
+                arguments(Arguments)
+                {}
         public:
-            size_t offset;
+            std::vector<int> bytecode;
             std::vector<size_t> arguments;
     };
 };

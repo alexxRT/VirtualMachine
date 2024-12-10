@@ -30,7 +30,7 @@ namespace VM {
          
             void print() {
                 for (auto& elem : data) {
-                    std::cout << std::format("{:x}", elem) << " ";
+                    std::cout << std::format("{:#x}", elem) << " ";
                 }
             }
         private:

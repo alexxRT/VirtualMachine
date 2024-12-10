@@ -7,7 +7,7 @@
 namespace VM {
     class Frame {
         public:
-            Frame(Stack* program_stack, const Function& f_callee, Frame* prev_frame, size_t pc) : callee(f_callee) {
+            Frame(Stack* program_stack, const Function& f_callee, Frame* prev_frame, size_t pc = 0) : callee(f_callee) {
                 stack   = program_stack;
                 prev    = prev_frame;
                 context = pc;

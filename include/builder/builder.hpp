@@ -1,8 +1,12 @@
 #pragma once
 #include "common.hpp"
+#include "types.hpp"
+#include <concepts>
+#include <utility>
 
 class Builder {
     public:
+        Builder() = default;
         Builder(std::shared_ptr<std::vector<int>> byte_code);
 
         void _ILOAD_(const size_t local_index);
@@ -41,6 +45,17 @@ class Builder {
         void _CALL_(const size_t calle_indx);
         void _RETURN_();
 
+        template <typename... Types>
+        VM::Function create_function() {
+            return VM::Function(std::move(bytecode),
+                                {sizeof(Types)...});
+        }
+
+        template <std::convertible_to<VM::Function>... Functions>
+        VM::Bytecode create_bytecode(Functions&&... functions) {
+            return {std::forward<Functions>(functions)...};
+        }
+
     private:
-        std::shared_ptr<std::vector<int>> bytecode_build;
+        std::vector<int> bytecode;
 };
