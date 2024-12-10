@@ -34,83 +34,44 @@ void Frame::run_context(std::vector<int>& byte_code, std::vector<Function>& f_ta
                 BIPUSH(push_val);
             }
             break;
-            case BYTECODE::ILOAD_0:
-                LOAD_I<0>();
-            break;
-            case BYTECODE::ILOAD_1:
-                LOAD_I<1>();
-            break;
-            case BYTECODE::ILOAD_2:
-                LOAD_I<2>();
-            break;
-            case BYTECODE::ILOAD_3:
-                LOAD_I<3>();
-            break;
-            case BYTECODE::ISTORE_0:
-                STORE_I<int, 0>();
-            break;
-            case BYTECODE::ISTORE_1:
-                STORE_I<int, 1>();
-            break;
-            case BYTECODE::ISTORE_2:
-                STORE_I<int, 2>();
-            break;
-            case BYTECODE::ISTORE_3:
-                STORE_I<int, 3>();
-            break;
-            case BYTECODE::IADD:
-                BIN<int>(std::plus{});
-            break;
-            case BYTECODE::IDIV:
-                BIN<int>(std::divides{});
-            break;
-            case BYTECODE::ISUB:
-                BIN<int>(std::minus{});
-            break;
-            case BYTECODE::IMUL:
-                BIN<int>(std::multiplies{});
-            break;
-            case BYTECODE::IOR:
-                BIN<int>(std::bit_or{});
-            break;
-            case BYTECODE::IAND:
-                BIN<int>(std::bit_and{});
-            break;
-            case BYTECODE::IXOR:
-                BIN<int>(std::bit_xor{});
-            break;
+
+            #define DEF_INSTR(INSTR_NAME, OPCODE, VAL) \
+                case BYTECODE::INSTR_NAME: {           \
+                    LOAD<VAL>();                       \
+                    break;                             \
+                }
+            #include "instructions/load.inc"
+            #undef DEF_INSTR
+
+            #define DEF_INSTR(INSTR_NAME, OPCODE, VAL) \
+                case BYTECODE::INSTR_NAME: {           \
+                    STORE<int, VAL>();                 \
+                    break;                             \
+                }
+            #include "instructions/store.inc"
+            #undef DEF_INSTR
+
+
+            #define DEF_INSTR(INSTR_NAME, OPCODE, OPERATION) \
+                case BYTECODE::INSTR_NAME: {                 \
+                    BIN<int>(OPERATION);                     \
+                    break;                                   \
+                }
+            #include "instructions/binOp.inc"
+            #undef DEF_INSTR
+
+
+            #define DEF_INSTR(INSTR_NAME, OPCODE, OPERATION)    \
+                case BYTECODE::INSTR_NAME: {                    \
+                    int jump_offset = byte_code[++context];     \
+                    BRANCH<int>(OPERATION, jump_offset);        \
+                    break;                                      \
+                }  
+            #include "instructions/condBr.inc"
+            #undef DEF_INSTR
+
             case BYTECODE::INEG:
                 NEG<int>();
-            break;
-            case BYTECODE::IIF_CMPEQ: {
-                int jump_offset = byte_code[++context];
-                BRANCH<int>(std::equal_to{}, jump_offset);
-            }
-            break;
-            case BYTECODE::IIF_CMPGE: {
-                int jump_offset = byte_code[++context];
-                BRANCH<int>(std::greater_equal{}, jump_offset);
-            }
-            break;
-            case BYTECODE::IIF_CMPGT: {
-                int jump_offset = byte_code[++context];
-                BRANCH<int>(std::greater{}, jump_offset); 
-            }
-            break;
-            case BYTECODE::IIF_CMPLE: {
-                int jump_offset = byte_code[++context];
-                BRANCH<int>(std::less_equal{}, jump_offset);
-            }
-            break;
-            case BYTECODE::IIF_CMPLT: {
-                int jump_offset = byte_code[++context];
-                BRANCH<int>(std::less{}, jump_offset);
-            }
-            break;
-            case BYTECODE::IIF_CMPNE: {
-                int jump_offset = byte_code[++context];
-                BRANCH<int>(std::not_equal_to{}, jump_offset);
-            }
             break;
             case BYTECODE::GOTO: {
                 int jump_offset = byte_code[++context];
@@ -150,7 +111,7 @@ void Frame::STORE(const size_t val_index) {
 };
 
 template <typename T, int I> 
-void Frame::STORE_I() {
+void Frame::STORE() {
     if (I >= local_variables.size())
         local_variables.resize(I + 1, {nullptr, 0});
 
@@ -173,7 +134,7 @@ void Frame::LOAD(const size_t val_index) {
 };
 
 template <int I>
-void Frame::LOAD_I() {
+void Frame::LOAD() {
     assert(I < local_variables.size());
     stack->push(local_variables[I]);
     context ++;

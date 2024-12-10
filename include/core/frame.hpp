@@ -31,13 +31,13 @@ namespace VM {
             void LOAD(const size_t val_index);
 
             template <int I> 
-            void LOAD_I();
+            void LOAD();
 
             template <typename T>
             void STORE(const size_t val_index);
 
             template <typename T, int I>
-            void STORE_I();
+            void STORE();
 
             template <typename T, std::regular_invocable<T, T> F>
             void BIN(F op);

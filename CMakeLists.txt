@@ -9,7 +9,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -g -fsanitize=address,unde
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(include/core 
-                    include/builder)
+                    include/builder
+                    include)
                     
 add_executable(${PROJECT_NAME} main.cpp)
 add_subdirectory(core)
