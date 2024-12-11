@@ -18,12 +18,12 @@ void Machine::print_bytecode() {
                 case BYTECODE::ILOAD:
                 case BYTECODE::ISTORE:
                 case BYTECODE::BIPUSH:
-                case BYTECODE::IIF_CMPEQ:
-                case BYTECODE::IIF_CMPGE:
-                case BYTECODE::IIF_CMPGT:
-                case BYTECODE::IIF_CMPLE:
-                case BYTECODE::IIF_CMPLT:
-                case BYTECODE::IIF_CMPNE:
+                case BYTECODE::IF_ICMPEQ:
+                case BYTECODE::IF_ICMPGE:
+                case BYTECODE::IF_ICMPGT:
+                case BYTECODE::IF_ICMPLE:
+                case BYTECODE::IF_ICMPLT:
+                case BYTECODE::IF_ICMPNE:
                 case BYTECODE::GOTO:
                     std::cout << std::format("{:#x}", *code) << " " << std::format("{:#x}", *(code + 1)) << " | " 
                             << string_code.at(*code) << " " << std::format("{:#x}", *(code + 1)) << std::endl;
@@ -54,8 +54,8 @@ void Machine::execute() {
         return;
     }
 
-    Frame main_frame{&stack, functions[0], nullptr};
-    main_frame.run_context(functions[0].bytecode, functions);
+    Frame main_frame{stack, functions[0], nullptr};
+    main_frame.run_context(stack, functions[0].bytecode, functions);
 };
 
 void Machine::reset() {

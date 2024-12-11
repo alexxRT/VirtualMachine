@@ -101,37 +101,37 @@ void Builder::_INEG_() {
 };
 
 void Builder::_IF_ICMPEQ_(const int branch_offset) {
-    bytecode.push_back(BYTECODE::IIF_CMPEQ);
+    bytecode.push_back(BYTECODE::IF_ICMPEQ);
     bytecode.push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPGE_(const int branch_offset) {    
-    bytecode.push_back(BYTECODE::IIF_CMPGE);
+    bytecode.push_back(BYTECODE::IF_ICMPGE);
     bytecode.push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPGT_(const int branch_offset) {
-    bytecode.push_back(BYTECODE::IIF_CMPGT);
+    bytecode.push_back(BYTECODE::IF_ICMPGT);
     bytecode.push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPLE_(const int branch_offset) {
-    bytecode.push_back(BYTECODE::IIF_CMPLE);
+    bytecode.push_back(BYTECODE::IF_ICMPLE);
     bytecode.push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPLT_(const int branch_offset) {
-    bytecode.push_back(BYTECODE::IIF_CMPLT);
+    bytecode.push_back(BYTECODE::IF_ICMPLT);
     bytecode.push_back(branch_offset);
     return;
 };
 
 void Builder::_IF_ICMPNE_(const int branch_offset) {
-    bytecode.push_back(BYTECODE::IIF_CMPNE);
+    bytecode.push_back(BYTECODE::IF_ICMPNE);
     bytecode.push_back(branch_offset);
     return;
 };

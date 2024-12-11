@@ -5,7 +5,7 @@
 
 namespace BYTECODE {
 
-    enum {
+    enum OpCode {
         #define DEF_INSTR(INSTR_NAME, OPCODE, ...) \
             INSTR_NAME = OPCODE,
         #include "instructions/all.inc"

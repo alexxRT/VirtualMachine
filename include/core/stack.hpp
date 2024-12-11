@@ -2,10 +2,11 @@
 #include "common.hpp"
 #include <type_traits>
 #include <cstring>
+#include <span>
 
 struct value_t {
-    void*  value;
-    size_t value_size;
+    uint8_t*  value_p;
+    size_t    value_size;
 };
 
 namespace VM {
@@ -33,6 +34,15 @@ namespace VM {
                     std::cout << std::format("{:#x}", elem) << " ";
                 }
             }
+
+            std::span<uint8_t> back(size_t size) {
+                return std::span<uint8_t>(data).subspan(data.size() - size, size);
+            }
+
+            void pop(size_t size) {
+                data.resize(data.size() - size);
+            }
+
         private:
             std::vector<uint8_t> data;
     };

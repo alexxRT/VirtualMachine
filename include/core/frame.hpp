@@ -3,67 +3,55 @@
 #include "bytecode.hpp"
 #include "stack.hpp"
 #include "function.hpp"
+#include <cassert>
 
 namespace VM {
     class Frame {
         public:
-            Frame(Stack* program_stack, const Function& f_callee, Frame* prev_frame, size_t pc = 0) : callee(f_callee) {
-                stack   = program_stack;
-                prev    = prev_frame;
-                context = pc;
+            Frame(Stack& programm_stack, const Function& callee_, Frame* prev_frame_) : callee(callee_), prev_frame(prev_frame_) {
+                // Move function arguments from programm stack to frame
+                auto arguments = programm_stack.back(callee.arguments_size);
+                std::move(arguments.begin(), arguments.end(), std::back_inserter(local_variables_storage));
+                programm_stack.pop(arguments.size());
 
-                std::vector<size_t>::reverse_iterator it = callee.arguments.rbegin();
-                for (; it < callee.arguments.rend(); it++) {
-                    value_t local = {calloc(*it, sizeof(uint8_t)), *it};
-                    program_stack->pop(local);
-                    local_variables.push_front(local);
+                // Match each local variable with its address inside the frame
+                local_variables.emplace_back(&local_variables_storage.front(), callee.arguments.front());
+                for (auto it = callee.arguments.begin(), ite = callee.arguments.end(); it < ite; ++it) {
+                    auto previous_variable = local_variables.back();
+                    local_variables.emplace_back(previous_variable.value_p + previous_variable.value_size, *it);
                 }
             };
 
-            ~Frame() {
-                for (auto& val : local_variables) {
-                    if (val.value)
-                        free(val.value);
-                }
+            void run_context(Stack& stack, std::vector<int>& byte_code, std::vector<Function>& f_table);
+
+        private:
+            template <typename T> 
+            T get_local_variable(unsigned n) {
+                assert(local_variables[n].value_size == sizeof(T));
+                auto var_ptr = reinterpret_cast<T*>(local_variables[n].value_p);
+                return *var_ptr;
             }
-            void run_context(std::vector<int>& byte_code, std::vector<Function>& f_table);
-        private:
-            void LOAD(const size_t val_index);
 
-            template <int I> 
-            void LOAD();
-
-            template <typename T>
-            void STORE(const size_t val_index);
-
-            template <typename T, int I>
-            void STORE();
-
-            template <typename T, std::regular_invocable<T, T> F>
-            void BIN(F op);
-
-            template <typename T, std::regular_invocable<T, T> CMP>
-            void BRANCH(CMP cmp_op, int branch);
+            template <typename T> 
+            void set_local_variable(unsigned n, T&& value) {
+                assert(local_variables[n].value_size == sizeof(T));
+                auto var_ptr = reinterpret_cast<T*>(local_variables[n].value_p);
+                *var_ptr = value;
+            }
 
             template <typename T>
-            void POP();
-
-            template <typename T>
-            void POP2();
-
-            template <typename T>
-            void INC(const size_t var_indx, const T c);
-
-            template <typename T>
-            void NEG();
-
-            void BIPUSH(const int value);
+            void create_local_variable() {
+                local_variables_storage.resize(local_variables_storage.size() + sizeof(T));
+                auto last_variable = local_variables.back();
+                local_variables.emplace_back(last_variable.value_p + last_variable.value_size, sizeof(T));
+            }
 
         private:
-            Stack* stack = nullptr;
-            Frame* prev  = nullptr;
-            std::deque<value_t> local_variables;
             Function callee;
-            size_t context;
+            std::vector<uint8_t> local_variables_storage;
+            std::vector<value_t> local_variables;
+
+            Frame* prev_frame  = nullptr;
+            size_t pc          = 0;
     };
 };

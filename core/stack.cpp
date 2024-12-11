@@ -15,7 +15,7 @@ void Stack::push(const value_t& elem) {
     size_t data_sz = data.size();
     data.resize(data.size() + elem_sz);
 
-    memmove(static_cast<void*>(&data[data_sz]), elem.value, elem_sz);
+    memmove(static_cast<void*>(&data[data_sz]), elem.value_p, elem_sz);
 }
 
 void Stack::pop(value_t& elem) {
@@ -27,7 +27,7 @@ void Stack::pop(value_t& elem) {
         return;
     }
     
-    memmove(elem.value, static_cast<void*>(&data[data_sz - elem_sz]), elem_sz);
+    memmove(elem.value_p, static_cast<void*>(&data[data_sz - elem_sz]), elem_sz);
     data.resize(data_sz - elem_sz);
 }
 
