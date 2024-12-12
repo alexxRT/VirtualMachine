@@ -8,7 +8,10 @@
 namespace VM {
     class Frame {
         public:
-            Frame(Stack& programm_stack, const Function& callee_, Frame* prev_frame_) : callee(callee_), prev_frame(prev_frame_) {
+            Frame(Stack& programm_stack, const Function& callee_, Frame* prev_frame_) : callee(callee_), local_variables_storage(), local_variables(), prev_frame(prev_frame_) {
+                if (callee.arguments.size() == 0)
+                    return;
+                
                 // Move function arguments from programm stack to frame
                 auto arguments = programm_stack.back(callee.arguments_size);
                 std::move(arguments.begin(), arguments.end(), std::back_inserter(local_variables_storage));
@@ -16,7 +19,7 @@ namespace VM {
 
                 // Match each local variable with its address inside the frame
                 local_variables.emplace_back(&local_variables_storage.front(), callee.arguments.front());
-                for (auto it = callee.arguments.begin(), ite = callee.arguments.end(); it < ite; ++it) {
+                for (auto it = callee.arguments.begin() + 1, ite = callee.arguments.end(); it != ite; ++it) {
                     auto previous_variable = local_variables.back();
                     local_variables.emplace_back(previous_variable.value_p + previous_variable.value_size, *it);
                 }
@@ -48,7 +51,7 @@ namespace VM {
 
         private:
             Function callee;
-            std::vector<uint8_t> local_variables_storage;
+            std::deque<uint8_t>  local_variables_storage;
             std::vector<value_t> local_variables;
 
             Frame* prev_frame  = nullptr;
