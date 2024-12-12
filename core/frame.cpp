@@ -18,7 +18,7 @@ void Frame::run_context(Stack& stack, std::vector<int>& byte_code, std::vector<F
                     pc++;                                                       \
                     break;                                                      \
                 }
-            #include "instructions/load.inc"
+            #include "instructions/memory/load.inc"
             #undef DEF_INSTR
 
             // case ISTORE, ISTORE_1, ISTORE_2
@@ -31,7 +31,7 @@ void Frame::run_context(Stack& stack, std::vector<int>& byte_code, std::vector<F
                     pc++;                                                       \
                     break;                                                      \
                 }
-            #include "instructions/store.inc"
+            #include "instructions/memory/store.inc"
             #undef DEF_INSTR
 
             // case IADD, IMUL, IDIV, ... 

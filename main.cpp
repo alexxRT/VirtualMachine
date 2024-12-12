@@ -6,34 +6,34 @@ VM::Bytecode fibonachi_cycled(int n) {
     Builder build;
 
     // public static int fib(int)
-    build._BIPUSH_(0);          // 0
-    build._ISTORE_1();          // 2
-    build._BIPUSH_(1);          // 3
-    build._ISTORE_2();          // 5
-    build._BIPUSH_(0);          // 6
-    build._ISTORE_3();          // 8
-    build._ILOAD_3();           // 9
-    build._ILOAD_0();           // 10
-    build._IF_ICMPGE_(28);      // 11
-    build._ILOAD_1();           // 13
-    build._ILOAD_2();           // 14
-    build._IADD_();             // 15
-    build._ISTORE_(4);          // 16
-    build._ILOAD_2();           // 18
-    build._ISTORE_1();          // 19
-    build._ILOAD_(4);           // 20
-    build._ISTORE_2();          // 22
-    build._IINC_(3, 1);         // 23
-    build._GOTO_(9);            // 26
-    build._ILOAD_2();           // 28
-    build._RETURN_();           // 29
+    build.BIPUSH(0);          // 0
+    build.ISTORE_1();         // 2
+    build.BIPUSH(1);          // 3
+    build.ISTORE_2();         // 5
+    build.BIPUSH(0);          // 6
+    build.ISTORE_3();         // 8
+    build.ILOAD_3();          // 9
+    build.ILOAD_0();          // 10
+    build.IF_ICMPGE(28);      // 11
+    build.ILOAD_1();          // 13
+    build.ILOAD_2();          // 14
+    build.IADD();             // 15
+    build.ISTORE(4);          // 16
+    build.ILOAD_2();          // 18
+    build.ISTORE_1();         // 19
+    build.ILOAD(4);           // 20
+    build.ISTORE_2();         // 22
+    build.IINC(3, 1);         // 23
+    build.GOTO(9);            // 26
+    build.ILOAD_2();          // 28
+    build.RETURN();           // 29
 
     auto fib = build.create_function<VM::jint>();
 
     // public static void main()
-    build._BIPUSH_(n);          // 30
-    build._CALL_(1);            // 32
-    build._RETURN_();           // 34
+    build.BIPUSH(n);          // 30
+    build.CALL(1);            // 32
+    build.RETURN();           // 34
 
     auto main = build.create_function();
 
@@ -46,28 +46,28 @@ VM::Bytecode fibonachi_recursive(int n) {
     Builder build;
     
     // public static int fib(int)
-    build._ILOAD_0();           // 0
-    build._BIPUSH_(1);          // 1
-    build._IF_ICMPGT_(7);       // 3
-    build._ILOAD_0();           // 5
-    build._RETURN_();           // 6
-    build._ILOAD_0();           // 7
-    build._BIPUSH_(1);          // 8
-    build._ISUB_();             // 10
-    build._CALL_(1);            // 11
-    build._ILOAD_0();           // 13
-    build._BIPUSH_(2);          // 14
-    build._ISUB_();             // 16
-    build._CALL_(1);            // 17
-    build._IADD_();             // 19
-    build._RETURN_();           // 20
+    build.ILOAD_0();          // 0
+    build.BIPUSH(1);          // 1
+    build.IF_ICMPGT(7);       // 3
+    build.ILOAD_0();          // 5
+    build.RETURN();           // 6
+    build.ILOAD_0();          // 7
+    build.BIPUSH(1);          // 8
+    build.ISUB();             // 10
+    build.CALL(1);            // 11
+    build.ILOAD_0();          // 13
+    build.BIPUSH(2);          // 14
+    build.ISUB();             // 16
+    build.CALL(1);            // 17
+    build.IADD();             // 19
+    build.RETURN();           // 20
 
     auto fib = build.create_function<VM::jint>();
 
     // main()
-    build._BIPUSH_(n);          // 21
-    build._CALL_(1);            // 23
-    build._RETURN_();           // 25
+    build.BIPUSH(n);          // 21
+    build.CALL(1);            // 23
+    build.RETURN();           // 25
 
     auto main = build.create_function();
 

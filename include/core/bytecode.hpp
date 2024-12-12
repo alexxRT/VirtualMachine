@@ -16,7 +16,7 @@ namespace BYTECODE {
 }
 
 static const std::unordered_map<int, std::string> string_code {
-    #define DEF_INSTR(CMD_NAME, ...)    \
+    #define DEF_INSTR(CMD_NAME, ...) \
         {BYTECODE::CMD_NAME, #CMD_NAME},
     #include "instructions/all.inc"
     #undef DEF_INSTR
