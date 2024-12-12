@@ -62,9 +62,9 @@ void Frame::run_context(Stack& stack, std::vector<int>& byte_code, std::vector<F
 
             case BYTECODE::CALL: {
                 size_t callee_indx = byte_code[++pc];
-                Frame next_frame   = Frame(stack, f_table[callee_indx], this);
+                Frame next_frame {stack, local_variables_storage, f_table[callee_indx], this};
                 next_frame.run_context(stack, f_table[callee_indx].bytecode, f_table);
-                pc ++;
+                pc++;
                 break;
             }
             case BYTECODE::GOTO: {

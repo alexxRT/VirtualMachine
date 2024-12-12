@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include "types.hpp"
 #include <concepts>
+#include <deque>
 
 namespace VM {
     class Machine {
@@ -20,8 +21,8 @@ namespace VM {
             void print_stack();
 
         private:
-            Stack  stack;
-            static const size_t entry_point = 0;
+            Stack stack;
+            std::deque<uint8_t> variables_storage;
             Bytecode functions;
     };
 

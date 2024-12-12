@@ -44,17 +44,7 @@ void Machine::print_stack() {
 }
 
 void Machine::execute() {
-    // if (bytecode.size() == 0) {
-    //     std::cout << "Nothing to execute! Please use load functions to load your programm!" << std::endl;
-    //     return;
-    // }
-
-    if (functions.size() == 0 or entry_point >= functions.size()) {
-        std::cout << "No entry point exists!" << std::endl;
-        return;
-    }
-
-    Frame main_frame{stack, functions[0], nullptr};
+    Frame main_frame{stack, variables_storage, functions[0], nullptr};
     main_frame.run_context(stack, functions[0].bytecode, functions);
 };
 
